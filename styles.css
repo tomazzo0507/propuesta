@@ -1,0 +1,236 @@
+/* Color Palette */
+:root {
+    --maroon: #800000;
+    --cream: #FFF6F2;
+    --soft-pink: #F6D6D6;
+    --light-coffee: #CFA27A;
+    --park-green: #8FB996;
+    --white: #FFFFFF;
+    --soft-gold: #FFD700;
+    --text-dark: #333333;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Outfit', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+}
+
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--cream);
+    color: var(--text-dark);
+}
+
+#mobile-only-message {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--cream);
+    color: var(--maroon);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 1.5rem;
+    z-index: 10000;
+    padding: 20px;
+}
+
+/* Ensure mobile styling only shows mobile warning on big screens */
+@media (min-width: 600px) {
+    #game-container {
+        display: none !important;
+    }
+}
+@media (max-width: 599px) {
+    #mobile-only-message {
+        display: none !important; /* Hide warning on mobile */
+    }
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+/* UI Elements */
+.hidden {
+    display: none !important;
+    opacity: 0;
+    pointer-events: none;
+}
+
+#hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 20;
+    font-size: 0.9rem;
+    color: var(--maroon);
+    font-weight: 600;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+    transition: opacity 0.5s ease;
+}
+
+.hud-left {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.hud-right {
+    font-weight: bold;
+}
+
+#dialog-box {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    background: rgba(255, 246, 242, 0.95);
+    border: 2px solid var(--maroon);
+    border-radius: 15px;
+    padding: 15px 20px;
+    text-align: center;
+    z-index: 30;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    animation: slideUp 0.3s ease-out;
+    color: var(--maroon);
+    font-size: 1rem;
+    line-height: 1.4;
+}
+
+@keyframes slideUp {
+    from { transform: translate(-50%, 20px); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 50;
+    background-color: var(--cream);
+    transition: opacity 1s ease-in-out;
+    text-align: center;
+    padding: 20px;
+}
+
+#start-screen {
+    background: linear-gradient(135deg, var(--cream) 0%, var(--soft-pink) 100%);
+}
+
+.title {
+    font-size: 3rem;
+    color: var(--maroon);
+    margin-bottom: 10px;
+    font-family: 'Outfit', serif;
+    font-weight: 300;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: var(--light-coffee);
+    margin-bottom: 40px;
+    font-weight: 400;
+}
+
+.primary-btn {
+    background-color: var(--maroon);
+    color: var(--white);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 30px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(128, 0, 0, 0.3);
+    transition: transform 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+.primary-btn:active {
+    transform: scale(0.95);
+}
+
+.secondary-btn {
+    background-color: transparent;
+    color: var(--maroon);
+    border: 2px solid var(--maroon);
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.2s;
+    outline: none;
+}
+.secondary-btn:active {
+    background-color: var(--soft-pink);
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.fade-in-text {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 1.5s ease, transform 1.5s ease;
+}
+
+.fade-in-text.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.final-text {
+    color: var(--white);
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+#final-screen {
+    background: linear-gradient(180deg, var(--light-coffee) 0%, var(--maroon) 100%);
+}
+
+#yes-screen {
+    background-color: var(--maroon);
+}

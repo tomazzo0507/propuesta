@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nuestro Camino</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="mobile-only-message" class="hidden">
+        <p>Este pequeño juego fue hecho solo para celular ❤️<br>Ábrelo desde tu teléfono.</p>
+    </div>
+
+    <div id="game-container">
+        <!-- Canvas Layer -->
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- HUD Layer -->
+        <div id="hud" class="hidden">
+            <div class="hud-left">
+                <span class="heart-icon">❤️</span>
+                <span class="hud-text">Nuestro camino</span>
+            </div>
+            <div class="hud-right">
+                <span id="progress-text">Recuerdos 0/5</span>
+            </div>
+        </div>
+
+        <!-- Dialog Layer -->
+        <div id="dialog-box" class="hidden">
+            <p id="dialog-text"></p>
+        </div>
+        
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen">
+            <div class="particles-container"></div>
+            <h1 class="title">Nuestro Camino</h1>
+            <p class="subtitle">Un pequeño juego sobre nosotros</p>
+            <button id="start-btn" class="primary-btn">Comenzar</button>
+        </div>
+
+        <!-- Final Screen -->
+        <div id="final-screen" class="screen hidden">
+            <p id="final-text-1" class="final-text fade-in-text">Todo empezó con un cappuccino derramado.</p>
+            <p id="final-text-2" class="final-text fade-in-text hidden">Y terminó convirtiéndose<br>en algunos de mis momentos favoritos.</p>
+            <p id="final-text-3" class="final-text fade-in-text hidden">Y ahora quiero preguntarte algo...</p>
+            <h1 id="final-question" class="hidden title fade-in-text">¿Quieres ser mi novia?</h1>
+            
+            <div id="final-buttons" class="hidden">
+                <button id="yes-btn" class="primary-btn pulse">Sí ❤️</button>
+                <button id="think-btn" class="secondary-btn">Necesito pensarlo</button>
+            </div>
+        </div>
+        
+        <div id="funny-message-screen" class="screen hidden">
+             <p class="final-text">Está bien...<br>pero mientras piensas<br>puedes volver a jugar nuestro camino.</p>
+             <button id="replay-btn" class="secondary-btn">Volver a jugar</button>
+        </div>
+        
+        <div id="yes-screen" class="screen hidden">
+             <h2 class="title fade-in-text" style="color: white">Sabía que valía la pena intentar este juego.</h2>
+             <div class="heart-explosion"></div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="main.js"></script>
+</body>
+</html>
