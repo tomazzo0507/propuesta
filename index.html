@@ -4,70 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Nuestro Camino</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div id="mobile-only-message" class="hidden">
-        <p>Este pequeño juego fue hecho solo para celular ❤️<br>Ábrelo desde tu teléfono.</p>
+
+    <!-- Mensaje de bloqueo para Desktop -->
+    <div id="desktop-message" class="hidden">
+        <p>Este pequeño juego fue hecho solo para celular ❤️</p>
+        <p>Ábrelo desde tu teléfono.</p>
     </div>
 
-    <div id="game-container">
-        <!-- Canvas Layer -->
+    <!-- Contenedor principal del juego -->
+    <div id="game-container" class="hidden">
+        
+        <!-- Canvas de renderizado principal -->
         <canvas id="gameCanvas"></canvas>
-        
-        <!-- HUD Layer -->
-        <div id="hud" class="hidden">
-            <div class="hud-left">
-                <span class="heart-icon">❤️</span>
-                <span class="hud-text">Nuestro camino</span>
-            </div>
-            <div class="hud-right">
-                <span id="progress-text">Recuerdos 0/5</span>
-            </div>
-        </div>
 
-        <!-- Dialog Layer -->
-        <div id="dialog-box" class="hidden">
-            <p id="dialog-text"></p>
-        </div>
-        
-        <!-- Start Screen -->
-        <div id="start-screen" class="screen">
-            <div class="particles-container"></div>
-            <h1 class="title">Nuestro Camino</h1>
-            <p class="subtitle">Un pequeño juego sobre nosotros</p>
-            <button id="start-btn" class="primary-btn">Comenzar</button>
-        </div>
-
-        <!-- Final Screen -->
-        <div id="final-screen" class="screen hidden">
-            <p id="final-text-1" class="final-text fade-in-text">Todo empezó con un cappuccino derramado.</p>
-            <p id="final-text-2" class="final-text fade-in-text hidden">Y terminó convirtiéndose<br>en algunos de mis momentos favoritos.</p>
-            <p id="final-text-3" class="final-text fade-in-text hidden">Y ahora quiero preguntarte algo...</p>
-            <h1 id="final-question" class="hidden title fade-in-text">¿Quieres ser mi novia?</h1>
+        <!-- UI del Juego -->
+        <div id="game-ui">
+            <div class="ui-top-left">
+                <div class="heart-icon"></div>
+                <span>Nuestro camino</span>
+            </div>
             
-            <div id="final-buttons" class="hidden">
-                <button id="yes-btn" class="primary-btn pulse">Sí ❤️</button>
-                <button id="think-btn" class="secondary-btn">Necesito pensarlo</button>
+            <div class="ui-top-right">
+                <span>Recuerdos</span>
+                <span id="memory-progress">0/5</span>
             </div>
         </div>
-        
-        <div id="funny-message-screen" class="screen hidden">
-             <p class="final-text">Está bien...<br>pero mientras piensas<br>puedes volver a jugar nuestro camino.</p>
-             <button id="replay-btn" class="secondary-btn">Volver a jugar</button>
+
+        <!-- Pantalla Inicial -->
+        <div id="start-screen" class="overlay-screen">
+            <h1>Nuestro Camino</h1>
+            <p>Una historia que quiero que nunca termine</p>
+            <button id="start-btn">Comenzar</button>
         </div>
-        
-        <div id="yes-screen" class="screen hidden">
-             <h2 class="title fade-in-text" style="color: white">Sabía que valía la pena intentar este juego.</h2>
-             <div class="heart-explosion"></div>
+
+        <!-- Pantalla Final: La Pregunta -->
+        <div id="final-screen" class="overlay-screen hidden fade-in">
+            <h2 class="final-text mb-2">Todo empezó con un cappuccino derramado.</h2>
+            <h2 class="final-text delay-1">Y terminó convirtiéndose<br>en algunos de mis momentos favoritos.</h2>
+            <h2 class="final-text delay-2">Así que tengo algo que preguntarte...</h2>
+            
+            <div class="final-question delay-3">
+                <h3>¿Puedo ser tu novio?</h3>
+                <div class="final-buttons">
+                    <button id="btn-yes">Sí ❤️</button>
+                    <button id="btn-think">Necesito pensarlo</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedores para minijuegos interactivos HTML (overlays) -->
+        <div id="minigame-overlay" class="hidden">
+            <!-- El contenido del minijuego se inyectará aquí de ser necesario o se pintará en canvas -->
+            <canvas id="minigameCanvas"></canvas>
+            <div id="minigame-ui" class="hidden"></div>
         </div>
 
     </div>
 
-    <!-- Scripts -->
+    <!-- Dependencias en módulos y entry point -->
     <script type="module" src="main.js"></script>
 </body>
 </html>

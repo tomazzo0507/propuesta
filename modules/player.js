@@ -1,102 +1,160 @@
+// modules/player.js
+
 export class Player {
-    constructor(canvas) {
-        this.canvas = canvas;
-        this.x = canvas.width / 4; // Stay roughly at 1/4 of screen when walking
-        this.y = canvas.height * 0.7; // Lower third of screen
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.width = 30; // approx body width
+        this.height = 60; // approx 60px tall per requirements
+        this.speed = 2.5; // Walking speed
         
-        this.state = 'idle'; // 'idle', 'walk', 'celebrate'
-        this.time = 0;
-        this.targetX = this.x;
-        this.isWalkingToCenter = false;
-        
-        // Colors
-        this.colorMaroon = '#800000';
-        this.colorSkin = '#FFDAC1';
+        // Animation States
+        this.state = 'idle'; // 'idle', 'walking', 'reaction'
+        this.timer = 0;
+        this.reactionTimer = 0;
     }
 
     update(dt) {
-        this.time += dt;
-        
-        if (this.isWalkingToCenter) {
-            this.x += (this.targetX - this.x) * 2 * dt;
-            if (Math.abs(this.targetX - this.x) < 1) {
-                this.x = this.targetX;
-                this.isWalkingToCenter = false;
+        this.timer += dt;
+
+        if (this.state === 'walking') {
+            this.x += this.speed;
+        }
+
+        if (this.state === 'reaction') {
+            this.reactionTimer -= dt;
+            if (this.reactionTimer <= 0) {
                 this.state = 'idle';
             }
         }
     }
-    
-    walkToCenter() {
-        this.targetX = this.canvas.width / 2;
-        this.isWalkingToCenter = true;
-        this.state = 'walk';
-    }
-    
-    resetPos() {
-        this.x = this.canvas.width / 4;
-        this.state = 'walk';
-    }
 
-    draw(ctx) {
+    draw(ctx, drawX) {
         ctx.save();
-        ctx.translate(this.x, this.y);
+        ctx.translate(drawX, this.y);
 
-        // Breathing / Walking animation offsets
-        let yOffset = 0;
-        let rotation = 0;
-        
-        if (this.state === 'idle') {
-            yOffset = Math.sin(this.time * 2) * 2; // slow breathing
-        } else if (this.state === 'walk') {
-            yOffset = Math.abs(Math.sin(this.time * 8)) * -5; // bopping up and down
-            rotation = Math.sin(this.time * 8) * 0.1; // slight sway
+        // We use Math.sin based on timer for simple procedural animation
+        let bounceY = 0;
+        let legAngle = 0;
+        let lookAngle = 0;
+
+        if (this.state === 'walking') {
+            bounceY = Math.abs(Math.sin(this.timer * 0.01)) * -3;
+            legAngle = Math.sin(this.timer * 0.01) * 20; // 20 degrees swing
+        } else if (this.state === 'idle') {
+            bounceY = Math.sin(this.timer * 0.005) * -1; // subtle breathing
+            lookAngle = Math.sin(this.timer * 0.002) * 10; // looking around
         }
+
+        // Apply bounce to entire body
+        ctx.translate(0, bounceY);
+
+        // Draw Shadows
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+        ctx.beginPath();
+        // Adjust shadow based on bounce
+        ctx.ellipse(0, this.height / 2 + (-bounceY) + 5, 20, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Colors
+        const hairColor = '#111111';
+        const shirtColor = '#FFFFFF';
+        const pantsColor = '#DDE1E4'; // soft gray
+
+        // --- Left Leg ---
+        ctx.save();
+        ctx.translate(0, 10);
+        ctx.rotate(legAngle * Math.PI / 180);
+        ctx.fillStyle = pantsColor;
+        ctx.beginPath();
+        ctx.roundRect(-6, 0, 12, 20, 5); 
+        ctx.fill();
+        ctx.restore();
+
+        // --- Right Leg ---
+        ctx.save();
+        ctx.translate(0, 10);
+        ctx.rotate(-legAngle * Math.PI / 180);
+        ctx.fillStyle = pantsColor;
+        ctx.beginPath();
+        ctx.roundRect(-6, 0, 12, 20, 5);
+        ctx.fill();
+        ctx.restore();
+
+        // --- Body (Shirt) ---
+        ctx.fillStyle = shirtColor;
+        ctx.beginPath();
+        // A minimal tapered or pill shape body
+        ctx.roundRect(-12, -20, 24, 30, 8);
+        ctx.fill();
+
+        // --- Head ---
+        ctx.save();
+        ctx.translate(0, -25);
+        ctx.rotate(lookAngle * Math.PI / 180);
         
-        ctx.rotate(rotation);
-        
-        // Draw Shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        // Hair (back)
+        ctx.fillStyle = hairColor;
         ctx.beginPath();
-        ctx.ellipse(0, 20, 15, 5, 0, 0, Math.PI * 2);
+        ctx.arc(0, 0, 15, 0, Math.PI, true);
         ctx.fill();
 
-        // Body (Maroon Clothing)
-        ctx.fillStyle = this.colorMaroon;
+        // Face
+        ctx.fillStyle = '#FFE0C8'; // skin tone
         ctx.beginPath();
-        ctx.roundRect(-10, yOffset - 15, 20, 25, 8);
+        ctx.arc(0, 2, 14, 0, Math.PI * 2);
         ctx.fill();
 
-        // Head
-        ctx.fillStyle = this.colorSkin;
+        // Hair (front style)
+        ctx.fillStyle = hairColor;
         ctx.beginPath();
-        ctx.arc(0, yOffset - 25, 12, 0, Math.PI * 2);
+        ctx.arc(1, -2, 16, Math.PI, Math.PI * 2);
+        ctx.fill();
+        // Hair bang
+        ctx.beginPath();
+        ctx.ellipse(-5, -5, 10, 8, 0.5, 0, Math.PI * 2);
         ctx.fill();
 
-        // Eyes (dot eyes)
-        ctx.fillStyle = '#333';
+        // Eyes
+        ctx.fillStyle = '#111';
         ctx.beginPath();
-        ctx.arc(3, yOffset - 27, 2, 0, Math.PI * 2); // Right eye
-        ctx.arc(8, yOffset - 27, 2, 0, Math.PI * 2); // Left eye
+        ctx.arc(4, 3, 2, 0, Math.PI * 2); // looking right automatically
+        ctx.arc(10, 3, 2, 0, Math.PI * 2);
         ctx.fill();
 
-        // If celebrate, draw a heart above
-        if (this.state === 'celebrate') {
-            this.drawHeart(ctx, 0, yOffset - 50, 10 + Math.sin(this.time * 5) * 2);
+        ctx.restore();
+
+        // --- Reaction Heart ---
+        if (this.state === 'reaction') {
+            drawHeart(ctx, 0, -50 + Math.sin(this.timer * 0.01) * 5, 8);
         }
 
         ctx.restore();
     }
-    
-    drawHeart(ctx, x, y, size) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.fillStyle = '#800000'; // maroon heart
-        ctx.beginPath();
-        ctx.moveTo(0, size);
-        ctx.bezierCurveTo(-size, size, -size, -size, 0, -size / 2);
-        ctx.bezierCurveTo(size, -size, size, size, 0, size);
-        ctx.fill();
-        ctx.restore();
+
+    walk() {
+        this.state = 'walking';
     }
+
+    stop() {
+        this.state = 'idle';
+    }
+
+    react() {
+        this.state = 'reaction';
+        this.reactionTimer = 2000; // 2 seconds
+    }
+}
+
+// Global heart drawing function shared
+export function drawHeart(ctx, x, y, size) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.fillStyle = '#800000'; // Maroon
+    ctx.beginPath();
+    ctx.moveTo(0, size);
+    ctx.bezierCurveTo(-size, size, -size * 1.5, -size * 0.5, 0, -size);
+    ctx.bezierCurveTo(size * 1.5, -size * 0.5, size, size, 0, size);
+    ctx.fill();
+    ctx.restore();
 }

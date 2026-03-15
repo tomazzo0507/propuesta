@@ -1,137 +1,116 @@
-/* Color Palette */
 :root {
-    --maroon: #800000;
-    --cream: #FFF6F2;
+    --primary: #800000;
+    --secondary: #FFF6F2;
     --soft-pink: #F6D6D6;
     --light-coffee: #CFA27A;
     --park-green: #8FB996;
     --white: #FFFFFF;
-    --soft-gold: #FFD700;
-    --text-dark: #333333;
+    --soft-gold: #D4AF37;
 }
 
 * {
-    box-sizing: border-box;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
     font-family: 'Outfit', sans-serif;
     user-select: none;
-    -webkit-user-select: none;
-    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body, html {
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
-    background-color: var(--cream);
-    color: var(--text-dark);
+    background-color: var(--secondary);
+    color: var(--primary);
 }
 
-#mobile-only-message {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--cream);
-    color: var(--maroon);
+.hidden {
+    display: none !important;
+}
+
+/* Mensaje Desktop */
+#desktop-message {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    height: 100vh;
+    width: 100vw;
     text-align: center;
+    background-color: var(--soft-pink);
+    padding: 2rem;
+}
+
+#desktop-message p {
     font-size: 1.5rem;
-    z-index: 10000;
-    padding: 20px;
+    font-weight: 500;
+    color: var(--primary);
+    margin: 0.5rem 0;
 }
 
-/* Ensure mobile styling only shows mobile warning on big screens */
-@media (min-width: 600px) {
-    #game-container {
-        display: none !important;
-    }
-}
-@media (max-width: 599px) {
-    #mobile-only-message {
-        display: none !important; /* Hide warning on mobile */
-    }
-}
-
+/* Contenedor principal */
 #game-container {
     position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
 }
 
 canvas {
     display: block;
     width: 100%;
     height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
 }
 
-/* UI Elements */
-.hidden {
-    display: none !important;
-    opacity: 0;
-    pointer-events: none;
-}
-
-#hud {
+/* UI Flotante (HUD) */
+#game-ui {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 15px;
+    padding: 1.5rem;
     display: flex;
     justify-content: space-between;
-    z-index: 20;
-    font-size: 0.9rem;
-    color: var(--maroon);
-    font-weight: 600;
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
-    transition: opacity 0.5s ease;
+    pointer-events: none;
+    z-index: 10;
 }
 
-.hud-left {
+.ui-top-left, .ui-top-right {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 0.5rem;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    backdrop-filter: blur(5px);
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--primary);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
-.hud-right {
-    font-weight: bold;
+.heart-icon {
+    width: 12px;
+    height: 12px;
+    background-color: var(--primary);
+    transform: rotate(-45deg);
+    position: relative;
+    margin-top: 2px;
 }
 
-#dialog-box {
+.heart-icon::before, .heart-icon::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background-color: var(--primary);
+    border-radius: 50%;
     position: absolute;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    background: rgba(255, 246, 242, 0.95);
-    border: 2px solid var(--maroon);
-    border-radius: 15px;
-    padding: 15px 20px;
-    text-align: center;
-    z-index: 30;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    animation: slideUp 0.3s ease-out;
-    color: var(--maroon);
-    font-size: 1rem;
-    line-height: 1.4;
 }
+.heart-icon::before { top: -6px; left: 0; }
+.heart-icon::after { top: 0; left: 6px; }
 
-@keyframes slideUp {
-    from { transform: translate(-50%, 20px); opacity: 0; }
-    to { transform: translate(-50%, 0); opacity: 1; }
-}
-
-.screen {
+/* Overlays (Pantallas inicial y final) */
+.overlay-screen {
     position: absolute;
     top: 0;
     left: 0;
@@ -141,96 +120,133 @@ canvas {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    z-index: 50;
-    background-color: var(--cream);
-    transition: opacity 1s ease-in-out;
+    background: linear-gradient(135deg, var(--soft-pink) 0%, var(--secondary) 100%);
+    z-index: 20;
     text-align: center;
-    padding: 20px;
+    padding: 2rem;
 }
 
-#start-screen {
-    background: linear-gradient(135deg, var(--cream) 0%, var(--soft-pink) 100%);
+.overlay-screen h1 {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
 }
 
-.title {
-    font-size: 3rem;
-    color: var(--maroon);
-    margin-bottom: 10px;
-    font-family: 'Outfit', serif;
-    font-weight: 300;
-}
-
-.subtitle {
-    font-size: 1.1rem;
+.overlay-screen p {
+    font-size: 1.2rem;
     color: var(--light-coffee);
-    margin-bottom: 40px;
-    font-weight: 400;
+    margin-bottom: 2rem;
 }
 
-.primary-btn {
-    background-color: var(--maroon);
+button {
+    background-color: var(--primary);
     color: var(--white);
     border: none;
-    border-radius: 25px;
-    padding: 12px 30px;
+    padding: 1rem 2rem;
+    border-radius: 30px;
     font-size: 1.2rem;
+    font-weight: 500;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(128, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(128, 0, 0, 0.2);
     transition: transform 0.2s, box-shadow 0.2s;
-    outline: none;
+    pointer-events: auto;
 }
-.primary-btn:active {
+
+button:active {
     transform: scale(0.95);
+    box-shadow: 0 2px 5px rgba(128, 0, 0, 0.2);
 }
 
-.secondary-btn {
-    background-color: transparent;
-    color: var(--maroon);
-    border: 2px solid var(--maroon);
-    border-radius: 25px;
-    padding: 10px 25px;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 15px;
-    transition: background-color 0.2s;
-    outline: none;
-}
-.secondary-btn:active {
-    background-color: var(--soft-pink);
-}
-
-.pulse {
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-.fade-in-text {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 1.5s ease, transform 1.5s ease;
-}
-
-.fade-in-text.visible {
-    opacity: 1;
-    transform: translateY(0);
+/* Pantalla final */
+#final-screen {
+    background: linear-gradient(180deg, var(--light-coffee) 0%, var(--soft-pink) 100%);
 }
 
 .final-text {
+    font-size: 1.4rem;
     color: var(--white);
-    font-size: 1.3rem;
-    margin-bottom: 20px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeInSlideUp 1.5s forwards ease-out;
 }
 
-#final-screen {
-    background: linear-gradient(180deg, var(--light-coffee) 0%, var(--maroon) 100%);
+.mb-2 { margin-bottom: 2rem; }
+
+.final-question {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    margin-top: 1rem;
+    opacity: 0;
+    animation: fadeInSlideUp 1.5s forwards ease-out;
 }
 
-#yes-screen {
-    background-color: var(--maroon);
+.final-question h3 {
+    margin-bottom: 1.5rem;
+    color: var(--primary);
+    font-size: 1.5rem;
+}
+
+.final-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+#btn-yes {
+    background-color: var(--primary);
+}
+
+#btn-think {
+    background-color: var(--secondary);
+    color: var(--primary);
+    border: 2px solid var(--primary);
+}
+
+.delay-1 { animation-delay: 2.5s; }
+.delay-2 { animation-delay: 5s; }
+.delay-3 { animation-delay: 10s; }
+
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Minigame overlay */
+#minigame-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 15;
+    background-color: rgba(255, 246, 242, 0.95);
+    /* Removed flex so children can overlay completely */
+}
+
+#minigameCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+#minigame-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Allows interactions with the canvas beneath */
+    z-index: 16;
 }

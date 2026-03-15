@@ -1,120 +1,270 @@
-import { SceneManager } from './modules/sceneManager.js';
+import { Camera } from './modules/camera.js';
 import { Player } from './modules/player.js';
+import { World } from './modules/world.js';
+import { SceneManager, SCENES } from './modules/sceneManager.js';
 import { UI } from './modules/ui.js';
+import { AudioController } from './modules/audio.js';
+
+import { startCoffeeClean } from './miniGames/coffeeClean.js';
+import { startTicketCatch } from './miniGames/ticketCatch.js';
+import { startLaserTag } from './miniGames/laserTag.js';
+import { startArchery } from './miniGames/archery.js';
+import { startParkWalk } from './miniGames/parkWalk.js';
 
 let canvas, ctx;
+let camera, player, world, sceneManager, ui, audio;
 let lastTime = 0;
-let sceneManager, player, ui;
+let isLooping = false;
 
-function init() {
+document.addEventListener("DOMContentLoaded", () => {
+    initApp();
+});
+
+function initApp() {
+    if (isDesktopDevice()) {
+        showDesktopMessage();
+        return;
+    }
+
+    const gameContainer = document.getElementById("game-container");
+    gameContainer.classList.remove("hidden");
+
+    const startBtn = document.getElementById("start-btn");
+    startBtn.addEventListener("click", () => {
+        document.getElementById("start-screen").classList.add("hidden");
+        startGame();
+    });
+}
+
+function isDesktopDevice() {
+    const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    return (window.innerWidth > 900 || !isMobileUA);
+}
+
+function showDesktopMessage() {
+    document.getElementById("desktop-message").classList.remove("hidden");
+    document.getElementById("game-container").classList.add("hidden");
+}
+
+function startGame() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
     
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    // Resize main canvas
+    resizeCanvas(canvas);
     
-    // Check mobile
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 600;
-    if (!isMobile) {
-        document.getElementById('mobile-only-message').classList.remove('hidden');
-        document.getElementById('game-container').classList.add('hidden');
-        // We do not stop execution strictly but let's hide the UI.
-    }
+    // Also size minigame canvas
+    const mgCanvas = document.getElementById('minigameCanvas');
+    resizeCanvas(mgCanvas);
 
-    // Initialize modules
-    ui = new UI();
-    player = new Player(canvas);
-    sceneManager = new SceneManager(canvas, ctx, player, ui);
-    
-    ui.init(sceneManager);
-    
-    // Bind Start Button
-    document.getElementById('start-btn').addEventListener('click', () => {
-        ui.hideStartScreen();
-        sceneManager.startGame();
+    window.addEventListener('resize', () => {
+        resizeCanvas(canvas);
+        resizeCanvas(mgCanvas);
     });
 
-    // Handle touch inputs for minigames
-    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-    canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+    // Initialize Modules
+    ui = new UI();
+    audio = new AudioController();
+    camera = new Camera();
     
-    // Mouse events for dev tools touch emulation / fallback
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', handleMouseUp);
+    // Create world & player
+    world = new World(canvas.width, canvas.height);
+    player = new Player(100, world.groundY);
+    camera.y = world.groundY;
+
+    // Initialize Scene Manager
+    sceneManager = new SceneManager(world.width, launchMinigame, startFinalScene);
+    sceneManager.state = SCENES.WALKING;
+
+    audio.playMusic();
+
+    // Final Action Buttons
+    document.getElementById('btn-yes').addEventListener('click', handleesAction);
+    document.getElementById('btn-think').addEventListener('click', handleThinkAction);
+
+    // Start Loop
+    lastTime = performance.now();
+    isLooping = true;
+    player.walk(); // Empezar a caminar
+    requestAnimationFrame(gameLoop);
+}
+
+function resizeCanvas(c) {
+    if (!c) return;
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+    if (c === canvas && camera) {
+        camera.resize(c.width, c.height);
+    }
+}
+
+function gameLoop(timestamp) {
+    if (!isLooping) return;
+    const dt = timestamp - lastTime;
+    lastTime = timestamp;
+
+    update(dt);
+    draw();
 
     requestAnimationFrame(gameLoop);
 }
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    if (sceneManager) {
-        sceneManager.resize(canvas.width, canvas.height);
-    }
-}
-
-function gameLoop(time) {
-    const deltaTime = Math.min((time - lastTime) / 1000, 0.1);
-    lastTime = time;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    if (sceneManager && sceneManager.isPlaying) {
-        sceneManager.update(deltaTime);
-        sceneManager.draw(ctx);
+function update(dt) {
+    if (sceneManager.state === SCENES.WALKING || sceneManager.state === SCENES.START) {
+        player.update(dt);
+        camera.update(player.x - canvas.width * 0.3); // Follow player, keeping player at 30% of screen
         
-        // Render minigame on top if active
-        if (sceneManager.activeMinigame) {
-            sceneManager.activeMinigame.update(deltaTime);
-            sceneManager.activeMinigame.draw(ctx);
-        }
+        sceneManager.checkTriggers(player.x);
     }
+}
+
+function draw() {
+    // Clear screen
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw world with camera offset
+    world.draw(ctx, camera);
+
+    // Draw player
+    player.draw(ctx, camera.getDrawX(player.x));
+}
+
+function launchMinigame(gameType) {
+    player.stop(); // Stop walking
+    player.react(); // Show heart reaction
     
-    requestAnimationFrame(gameLoop);
-}
+    ui.showMinigame();
 
-// Input Handlers routes
-function handleTouchStart(e) {
-    e.preventDefault();
-    if (sceneManager && sceneManager.activeMinigame && sceneManager.activeMinigame.onTouchStart) {
-        const rect = canvas.getBoundingClientRect();
-        const t = e.touches[0];
-        sceneManager.activeMinigame.onTouchStart(t.clientX - rect.left, t.clientY - rect.top);
-    }
-}
-function handleTouchMove(e) {
-    e.preventDefault();
-    if (sceneManager && sceneManager.activeMinigame && sceneManager.activeMinigame.onTouchMove) {
-        const rect = canvas.getBoundingClientRect();
-        const t = e.touches[0];
-        sceneManager.activeMinigame.onTouchMove(t.clientX - rect.left, t.clientY - rect.top);
-    }
-}
-function handleTouchEnd(e) {
-    e.preventDefault();
-    if (sceneManager && sceneManager.activeMinigame && sceneManager.activeMinigame.onTouchEnd) {
-        sceneManager.activeMinigame.onTouchEnd();
-    }
-}
+    const mgCanvas = document.getElementById('minigameCanvas');
+    const mgCtx = mgCanvas.getContext('2d');
+    
+    const onComplete = () => {
+        ui.hideMinigame();
+        sceneManager.completeMinigame();
+        ui.updateProgress(sceneManager.memoriesCompleted, sceneManager.totalMemories);
+        player.walk(); // Resume walking
+    };
 
-function handleMouseDown(e) {
-    if (sceneManager && sceneManager.activeMinigame && sceneManager.activeMinigame.onTouchStart) {
-        const rect = canvas.getBoundingClientRect();
-        sceneManager.activeMinigame.onTouchStart(e.clientX - rect.left, e.clientY - rect.top);
-    }
-}
-function handleMouseMove(e) {
-    if (sceneManager && sceneManager.activeMinigame && sceneManager.activeMinigame.onTouchMove) {
-         const rect = canvas.getBoundingClientRect();
-         sceneManager.activeMinigame.onTouchMove(e.clientX - rect.left, e.clientY - rect.top);
-    }
-}
-function handleMouseUp(e) {
-    if (sceneManager && sceneManager.activeMinigame && sceneManager.activeMinigame.onTouchEnd) {
-         sceneManager.activeMinigame.onTouchEnd();
+    switch (gameType) {
+        case 'coffeeClean':
+            startCoffeeClean(mgCanvas, mgCtx, onComplete);
+            break;
+        case 'ticketCatch':
+            startTicketCatch(mgCanvas, mgCtx, onComplete);
+            break;
+        case 'laserTag':
+            startLaserTag(mgCanvas, mgCtx, onComplete);
+            break;
+        case 'archery':
+            startArchery(mgCanvas, mgCtx, onComplete);
+            break;
+        case 'parkWalk':
+            startParkWalk(mgCanvas, mgCtx, onComplete);
+            break;
+        default:
+            setTimeout(onComplete, 2000);
+            break;
     }
 }
 
-window.onload = init;
+function startFinalScene() {
+    isLooping = false; // Stop main loop
+    player.stop();
+    ui.showFinalScreen();
+    // Render the final canvas scene (merging objects into a heart)
+    renderFinalAnimation();
+}
+
+function handleesAction() {
+    document.getElementById('final-screen').innerHTML = `
+        <div style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; animation: fadeInSlideUp 2s ease-out;">
+            <div style="font-size: 100px; margin-bottom: 2rem; animation: pulse 1s infinite alternate;">❤️</div>
+            <h2 class="final-text" style="opacity: 1; margin: 0; text-align: center;">Entonces… este también será parte de nuestro camino ❤️</h2>
+        </div>
+        <style>@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.2); } }</style>
+    `;
+    // Add floating hearts effect to background
+    document.getElementById('final-screen').style.background = 'linear-gradient(180deg, var(--soft-pink) 0%, var(--primary) 100%)';
+}
+
+function handleThinkAction() {
+    document.getElementById('final-screen').innerHTML = `
+        <div style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; animation: fadeInSlideUp 2s ease-out;">
+            <h2 class="final-text" style="opacity: 1; margin-bottom: 1rem;">Está bien...</h2>
+            <h2 class="final-text" style="opacity: 1; margin: 0; text-align: center;">pero mientras piensas<br>puedes volver a jugar nuestro camino.</h2>
+            <button onclick="location.reload()" style="margin-top: 2rem; pointer-events: auto;">Volver a jugar</button>
+        </div>
+    `;
+}
+
+function renderFinalAnimation() {
+    // We already cleared old loop. Start an animation on the main canvas under the transparent UI final screen
+    let finalObjects = [
+        { emoji: '☕', x: canvas.width * 0.2, y: canvas.height * 0.3, a: 0 },
+        { emoji: '🎟️', x: canvas.width * 0.8, y: canvas.height * 0.4, a: 0 },
+        { emoji: '🏹', x: canvas.width * 0.3, y: canvas.height * 0.8, a: 0 },
+        { emoji: '🔫', x: canvas.width * 0.7, y: canvas.height * 0.7, a: 0 },
+        { emoji: '🌳', x: canvas.width * 0.5, y: canvas.height * 0.2, a: 0 }
+    ];
+
+    let timer = 0;
+    
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw sky
+        ctx.fillStyle = '#CFA27A'; // sunset color
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        timer += 0.02;
+
+        const mergeProgress = Math.min(1, Math.max(0, timer - 3) * 0.5); // Starts merging after 3 seconds
+
+        ctx.font = '40px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        
+        finalObjects.forEach((obj, i) => {
+            obj.a += 0.05;
+            
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            const currentX = obj.x + Math.sin(obj.a) * 20;
+            const currentY = obj.y + Math.cos(obj.a) * 20;
+
+            const drawX = currentX + (cx - currentX) * mergeProgress;
+            const drawY = currentY + (cy - currentY) * mergeProgress;
+
+            ctx.globalAlpha = 1 - mergeProgress;
+            // Only draw while alpha is > 0
+            if (ctx.globalAlpha > 0) {
+                ctx.fillText(obj.emoji, drawX, drawY);
+            }
+        });
+
+        // Draw massive heart that fades in
+        ctx.globalAlpha = mergeProgress;
+        ctx.save();
+        ctx.translate(canvas.width / 2, canvas.height / 2 - 50);
+        
+        const scale = 1 + Math.sin(timer * 5) * 0.05;
+        ctx.scale(scale, scale);
+        
+        ctx.fillStyle = '#800000';
+        ctx.beginPath();
+        const size = 100;
+        ctx.moveTo(0, size);
+        ctx.bezierCurveTo(-size, size, -size * 1.5, -size * 0.5, 0, -size);
+        ctx.bezierCurveTo(size * 1.5, -size * 0.5, size, size, 0, size);
+        ctx.fill();
+        ctx.restore();
+
+        ctx.globalAlpha = 1.0;
+
+        // If not completely merged, or user hasn't selected "Necesito pensarlo" which overwrites DOM
+        requestAnimationFrame(animate);
+    }
+
+    animate();
+}
