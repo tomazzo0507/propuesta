@@ -34,6 +34,9 @@
             </div>
         </div>
 
+        <!-- Texto Narrativo -->
+        <div id="narrative-text" class="hidden"></div>
+
         <!-- Pantalla Inicial -->
         <div id="start-screen" class="overlay-screen">
             <h1>Nuestro Camino</h1>
@@ -45,15 +48,8 @@
         <div id="final-screen" class="overlay-screen hidden fade-in">
             <h2 class="final-text mb-2">Todo empezó con un cappuccino derramado.</h2>
             <h2 class="final-text delay-1">Y terminó convirtiéndose<br>en algunos de mis momentos favoritos.</h2>
-            <h2 class="final-text delay-2">Así que tengo algo que preguntarte...</h2>
-            
-            <div class="final-question delay-3">
-                <h3>¿Puedo ser tu novio?</h3>
-                <div class="final-buttons">
-                    <button id="btn-yes">Sí ❤️</button>
-                    <button id="btn-think">Necesito pensarlo</button>
-                </div>
-            </div>
+            <h2 class="final-text delay-2">Así que tengo algo que confesarte...</h2>
+            <h2 class="final-text delay-3" style="font-size: 2rem; margin-top: 2rem;">no tienes idea de lo maravilloso que es ser tu novio ❤️</h2>
         </div>
 
         <!-- Contenedores para minijuegos interactivos HTML (overlays) -->
@@ -67,5 +63,23 @@
 
     <!-- Dependencias en módulos y entry point -->
     <script type="module" src="main.js"></script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
+    
+      const firebaseConfig = {
+        apiKey: "AIzaSyApF1JATzjWKjJwIsSQXFCjpSWUXYAoDtY",
+        authDomain: "que-dicess.firebaseapp.com",
+        projectId: "que-dicess",
+        storageBucket: "que-dicess.firebasestorage.app",
+        messagingSenderId: "1070971732804",
+        appId: "1:1070971732804:web:6b7337181423977afa4d11",
+        measurementId: "G-LSHPWW0N7T"
+      };
+    
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
 </body>
 </html>

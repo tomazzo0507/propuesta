@@ -173,12 +173,14 @@ export function startArchery(canvas, ctx, onComplete) {
 
     function drawHeart(c, x, y, size) {
         c.save();
-        c.translate(x, y);
+        c.translate(x, y - size/2); // Center vertically
         c.fillStyle = hit ? '#F6D6D6' : '#800000'; // Flash pink when hit
         c.beginPath();
-        c.moveTo(0, size);
-        c.bezierCurveTo(-size, size, -size * 1.5, -size * 0.5, 0, -size);
-        c.bezierCurveTo(size * 1.5, -size * 0.5, size, size, 0, size);
+        c.moveTo(0, size / 4);
+        c.bezierCurveTo(0, -size / 4, -size, -size / 4, -size, size / 4);
+        c.bezierCurveTo(-size, size, 0, size * 1.25, 0, size * 1.5);
+        c.bezierCurveTo(0, size * 1.25, size, size, size, size / 4);
+        c.bezierCurveTo(size, -size / 4, 0, -size / 4, 0, size / 4);
         c.fill();
         c.restore();
     }

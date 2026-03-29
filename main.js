@@ -9,10 +9,11 @@ import { startCoffeeClean } from './miniGames/coffeeClean.js';
 import { startTicketCatch } from './miniGames/ticketCatch.js';
 import { startLaserTag } from './miniGames/laserTag.js';
 import { startArchery } from './miniGames/archery.js';
-import { startParkWalk } from './miniGames/parkWalk.js';
+import { startCinemaScene } from './miniGames/cinemaScene.js';
+import { NarrativeManager } from './modules/narrativeManager.js';
 
 let canvas, ctx;
-let camera, player, world, sceneManager, ui, audio;
+let camera, player, world, sceneManager, ui, audio, narrativeManager;
 let lastTime = 0;
 let isLooping = false;
 
@@ -66,6 +67,7 @@ function startGame() {
     ui = new UI();
     audio = new AudioController();
     camera = new Camera();
+    narrativeManager = new NarrativeManager();
     
     // Create world & player
     world = new World(canvas.width, canvas.height);
@@ -77,10 +79,6 @@ function startGame() {
     sceneManager.state = SCENES.WALKING;
 
     audio.playMusic();
-
-    // Final Action Buttons
-    document.getElementById('btn-yes').addEventListener('click', handleesAction);
-    document.getElementById('btn-think').addEventListener('click', handleThinkAction);
 
     // Start Loop
     lastTime = performance.now();
@@ -110,6 +108,8 @@ function gameLoop(timestamp) {
 }
 
 function update(dt) {
+    narrativeManager.update(sceneManager.state, player.x);
+    
     if (sceneManager.state === SCENES.WALKING || sceneManager.state === SCENES.START) {
         player.update(dt);
         camera.update(player.x - canvas.width * 0.3); // Follow player, keeping player at 30% of screen
@@ -158,8 +158,8 @@ function launchMinigame(gameType) {
         case 'archery':
             startArchery(mgCanvas, mgCtx, onComplete);
             break;
-        case 'parkWalk':
-            startParkWalk(mgCanvas, mgCtx, onComplete);
+        case 'cinemaScene':
+            startCinemaScene(mgCanvas, mgCtx, onComplete);
             break;
         default:
             setTimeout(onComplete, 2000);
@@ -173,28 +173,6 @@ function startFinalScene() {
     ui.showFinalScreen();
     // Render the final canvas scene (merging objects into a heart)
     renderFinalAnimation();
-}
-
-function handleesAction() {
-    document.getElementById('final-screen').innerHTML = `
-        <div style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; animation: fadeInSlideUp 2s ease-out;">
-            <div style="font-size: 100px; margin-bottom: 2rem; animation: pulse 1s infinite alternate;">❤️</div>
-            <h2 class="final-text" style="opacity: 1; margin: 0; text-align: center;">Entonces… este también será parte de nuestro camino ❤️</h2>
-        </div>
-        <style>@keyframes pulse { from { transform: scale(1); } to { transform: scale(1.2); } }</style>
-    `;
-    // Add floating hearts effect to background
-    document.getElementById('final-screen').style.background = 'linear-gradient(180deg, var(--soft-pink) 0%, var(--primary) 100%)';
-}
-
-function handleThinkAction() {
-    document.getElementById('final-screen').innerHTML = `
-        <div style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2rem; animation: fadeInSlideUp 2s ease-out;">
-            <h2 class="final-text" style="opacity: 1; margin-bottom: 1rem;">Está bien...</h2>
-            <h2 class="final-text" style="opacity: 1; margin: 0; text-align: center;">pero mientras piensas<br>puedes volver a jugar nuestro camino.</h2>
-            <button onclick="location.reload()" style="margin-top: 2rem; pointer-events: auto;">Volver a jugar</button>
-        </div>
-    `;
 }
 
 function renderFinalAnimation() {

@@ -24,7 +24,7 @@ export class SceneManager {
             { id: 'memory2_playland', x: sectionWidth * 2, completed: false, game: 'ticketCatch' },
             { id: 'memory3_laser', x: sectionWidth * 3, completed: false, game: 'laserTag' },
             { id: 'memory4_archery', x: sectionWidth * 4, completed: false, game: 'archery' },
-            { id: 'memory5_park', x: sectionWidth * 5, completed: false, game: 'parkWalk' } // Park memory might just be a walk or simple interaction
+            { id: 'memory5_cinema', x: sectionWidth * 5, completed: false, game: 'cinemaScene' }
         ];
 
         // Ensure triggers align with special backgrounds roughly
@@ -35,9 +35,9 @@ export class SceneManager {
         // If finalX is roughly 7 mobile screens (e.g. 7 * 400 = 2800? It's canvasWidth * 7, which usually is ~380x7 = 2660, let's make it proportional)
         this.triggers[2].x = 3650;
         this.triggers[3].x = 4650;
-        this.triggers[4].x = 5650;
+        this.triggers[4].x = 5400;
         
-        this.finalX = worldWidth - 400; // End of the world
+        this.finalX = worldWidth - 100; // End of the world
     }
 
     checkTriggers(playerX) {

@@ -109,6 +109,29 @@ canvas {
 .heart-icon::before { top: -6px; left: 0; }
 .heart-icon::after { top: 0; left: 6px; }
 
+/* Texto Narrativo */
+#narrative-text {
+    position: absolute;
+    top: 12%;
+    width: 100%;
+    text-align: center;
+    pointer-events: none;
+    z-index: 12;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: var(--primary);
+    text-shadow: 1px 1px 5px rgba(255, 255, 255, 0.9),
+                 -1px -1px 5px rgba(255, 255, 255, 0.9),
+                 1px -1px 5px rgba(255, 255, 255, 0.9),
+                 -1px 1px 5px rgba(255, 255, 255, 0.9); /* Strong outline for readability */
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+#narrative-text.show {
+    opacity: 1;
+}
+
 /* Overlays (Pantallas inicial y final) */
 .overlay-screen {
     position: absolute;
