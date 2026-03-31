@@ -15,7 +15,7 @@ export class World {
 
         this.bgPlayland = new Image();
         this.bgPlayland.src = 'modules/assets/playland.png';
-        
+
         // Generate world elements randomly along the path
         this.elements = [];
         this.generateEnvironment();
@@ -30,28 +30,28 @@ export class World {
                 scale: 0.5 + Math.random() * 0.8
             });
         }
-        
+
         // Add lamps
-        for(let i=0; i<15; i++) {
-             this.elements.push({
+        for (let i = 0; i < 15; i++) {
+            this.elements.push({
                 type: 'lamp',
                 x: 200 + (Math.random() * this.width),
             });
         }
 
         // Sort by x position or pseudo Z
-        this.elements.sort((a,b) => a.x - b.x);
+        this.elements.sort((a, b) => a.x - b.x);
     }
 
     draw(ctx, camera) {
         // Sky background (Gradient from afternoon to sunset based on camera.x)
         const progress = Math.min(1, Math.max(0, camera.x / this.width));
-        
+
         const gradient = ctx.createLinearGradient(0, 0, 0, this.screenHeight);
-        
+
         // Afternoon colors -> Sunset colors
         // from Soft Pink to secondary to Park Green mixing
-        
+
         // Let's interpolate colors 
         const r1 = 255 - progress * 50;
         const g1 = 246 - progress * 100;
@@ -61,7 +61,7 @@ export class World {
         const g2 = 214 - progress * 100;
         const b2 = 214 - progress * 100;
 
-        gradient.addColorStop(0, `rgb(${r1}, ${g1}, ${b1})`); 
+        gradient.addColorStop(0, `rgb(${r1}, ${g1}, ${b1})`);
         gradient.addColorStop(1, `rgb(${r2}, ${g2}, ${b2})`);
 
         ctx.fillStyle = gradient;
@@ -107,13 +107,13 @@ export class World {
         const drawX = camera.getDrawX(worldX);
         const w = img.width * scale;
         const h = img.height * scale;
-        
+
         // Draw resting near ground
         const y = this.groundY - h + offsetY;
 
         // Optimization: only draw if visible
         if (drawX + w > -100 && drawX < this.screenWidth + 100) {
-           ctx.drawImage(img, drawX, y, w, h);
+            ctx.drawImage(img, drawX, y, w, h);
         }
     }
 
@@ -122,7 +122,7 @@ export class World {
         ctx.beginPath();
         const startX = -(camera.x * parallaxSpeed) % this.screenWidth;
         ctx.moveTo(0, this.screenHeight);
-        
+
         // Draw sine wave hills
         for (let x = 0; x <= this.screenWidth + 50; x += 50) {
             const worldX = x + (camera.x * parallaxSpeed);
@@ -148,7 +148,7 @@ export class World {
         ctx.arc(0, -70, 40, 0, Math.PI * 2);
         ctx.fill();
 
-        ctx.fillStyle = '#8FB996'; 
+        ctx.fillStyle = '#8FB996';
         ctx.beginPath();
         ctx.arc(15, -90, 30, 0, Math.PI * 2);
         ctx.fill();
@@ -167,7 +167,7 @@ export class World {
         // Top
         ctx.fillStyle = '#222';
         ctx.beginPath();
-        ctx.arc(0, -90, 8, Math.PI, Math.PI*2);
+        ctx.arc(0, -90, 8, Math.PI, Math.PI * 2);
         ctx.fill();
 
         // Light bulb
